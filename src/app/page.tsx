@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 
-function Square({ value, onSquareClick } : { value: string | null, onSquareClick: () => void }) {
+function Square({ value, onSquareClick }: { value: string | null, onSquareClick: () => void }) {
 
   return (
     <button
@@ -15,22 +15,46 @@ function Square({ value, onSquareClick } : { value: string | null, onSquareClick
 
 export default function Board() {
 
+  const [winner, setWinner] = useState<string | null>(null);
   const [nextPlayer, setNextPlayer] = useState<string>('X');
   const [squares, setSquares] = useState(Array(9).fill(null));
 
   function onSquareClick(i: number) {
-    if (squares[i]) {
+    if (squares[i] || winner) {
       return; // Ignore if the square is already filled
     }
     const newSquares = squares.slice();
     newSquares[i] = nextPlayer;
     setSquares(newSquares);
     setNextPlayer(nextPlayer === 'X' ? 'O' : 'X');
+
+    const newWinner = calculateWinner(newSquares);
+    setWinner(newWinner);
+  }
+
+  function calculateWinner(squares: Array<string | null>) {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return null;
   }
 
   return (
     <>
-      <p>Next player: {nextPlayer}</p>
+      {winner ? (<h1>Winner: {winner}</h1>) : (<p>Next player: {nextPlayer}</p>)}
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={onSquareClick.bind(null, 0)} />
         <Square value={squares[1]} onSquareClick={onSquareClick.bind(null, 1)} />
