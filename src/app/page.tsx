@@ -15,28 +15,22 @@ function Square({ value, onSquareClick } : { value: string | null, onSquareClick
 
 export default function Board() {
 
+  const [nextPlayer, setNextPlayer] = useState<string>('X');
   const [squares, setSquares] = useState(Array(9).fill(null));
 
   function onSquareClick(i: number) {
-    const newSquares = squares.slice();
-    switch (squares[i]) {
-      case 'X':
-        newSquares[i] = 'O';
-        break;
-
-      case 'O':
-        newSquares[i] = null;
-        break;
-    
-      default:
-        newSquares[i] = 'X';
-        break;
+    if (squares[i]) {
+      return; // Ignore if the square is already filled
     }
+    const newSquares = squares.slice();
+    newSquares[i] = nextPlayer;
     setSquares(newSquares);
+    setNextPlayer(nextPlayer === 'X' ? 'O' : 'X');
   }
 
   return (
     <>
+      <p>Next player: {nextPlayer}</p>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={onSquareClick.bind(null, 0)} />
         <Square value={squares[1]} onSquareClick={onSquareClick.bind(null, 1)} />
