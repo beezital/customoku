@@ -19,7 +19,19 @@ export default function Board() {
 
   function onSquareClick(i: number) {
     const newSquares = squares.slice();
-    newSquares[i] = 'X';
+    switch (squares[i]) {
+      case 'X':
+        newSquares[i] = 'O';
+        break;
+
+      case 'O':
+        newSquares[i] = null;
+        break;
+    
+      default:
+        newSquares[i] = 'X';
+        break;
+    }
     setSquares(newSquares);
   }
 
