@@ -52,9 +52,16 @@ export default function Board() {
     return null;
   }
 
+  function player(nextPlayer: string, winner: string | null) {
+    if (winner) {
+      return <h1>Winner: {winner}</h1>;
+    }
+    return <p>Next player: {nextPlayer}</p>;
+  }
+
   return (
     <>
-      {winner ? (<h1>Winner: {winner}</h1>) : (<p>Next player: {nextPlayer}</p>)}
+      {player(nextPlayer, winner)}
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={onSquareClick.bind(null, 0)} />
         <Square value={squares[1]} onSquareClick={onSquareClick.bind(null, 1)} />
