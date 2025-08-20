@@ -1,9 +1,14 @@
 'use client';
+import { useState } from 'react';
 
-function Square({ value = "" }: { value?: string }) {
+
+function Square() {
+
+  const [ value, setValue ] = useState<string | null>(null);
 
   function handleClick() {
     console.log('click');
+    setValue('X');
   }
 
   return (
@@ -19,9 +24,9 @@ export default function Board() {
   return (
     <>
       <div className="board-row">
-        <Square value="1" />
-        <Square value="2" />
-        <Square value="3" />
+        <Square />
+        <Square />
+        <Square />
       </div>
       <div className="board-row">
         <Square />
