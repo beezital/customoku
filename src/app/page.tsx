@@ -1,6 +1,13 @@
 'use client';
 import { useState } from 'react';
 
+// type for the history of the board state
+// includes the array of squares and the next player for each move
+type HistoryEntry = {
+  squares: Array<string | null>;
+  nextPlayer: string;
+};
+
 
 function Square({ value, onSquareClick }: { value: string | null, onSquareClick: () => void }) {
 
@@ -41,29 +48,32 @@ function Board({ squares, onSquareClick }: { squares: Array<string | null>, onSq
 export default function Game() {
 
   const [winner, setWinner] = useState<string | null>(null);
-  const [nextPlayer, setNextPlayer] = useState<string>('X');
-  const [history, setHistory] = useState<Array<Array<string | null>>>([Array(9).fill(null)]);
+  const [history, setHistory] = useState<HistoryEntry[]>([{ squares: Array(9).fill(null), nextPlayer: 'X' }]);
 
-  const squares = history[history.length - 1];
+  const squares = history[history.length - 1].squares;
+  const nextPlayer = history[history.length - 1].nextPlayer;
 
   function onSquareClick(i: number) {
     if (squares[i] || winner) {
       return; // Ignore if the square is already filled
     }
+
     const newSquares = squares.slice();
     newSquares[i] = nextPlayer;
+    const newNextPlayer = nextPlayer === 'X' ? 'O' : 'X';
+    const newHistoryEntry: HistoryEntry = { squares: newSquares, nextPlayer: newNextPlayer };
 
-    const newHistory = [...history, newSquares];
+    const newHistory = [...history, newHistoryEntry];
     console.log(newHistory);
     setHistory(newHistory);
-    togglePlayer();
 
-    const newWinner = calculateWinner(newSquares);
-    setWinner(newWinner);
+    checkAndUpdateWinner(newHistory);
   }
 
-  function togglePlayer() {
-    setNextPlayer(nextPlayer === 'X' ? 'O' : 'X');
+  function checkAndUpdateWinner(history: HistoryEntry[]) {
+    const squares = history[history.length - 1].squares;
+    const newWinner = calculateWinner(squares);
+    setWinner(newWinner);
   }
 
   function calculateWinner(squares: Array<string | null>) {
@@ -100,7 +110,7 @@ export default function Game() {
     const newHistory = history.slice(0, history.length - 1);
 
     setHistory(newHistory);
-    togglePlayer();
+    checkAndUpdateWinner(newHistory);
   }
 
   return (
