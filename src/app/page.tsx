@@ -13,7 +13,7 @@ type HistoryEntry = {
 // Holds the hints the user gives to the parent Cell
 function Mark({ value }: { value?: number | undefined }) {
   return (
-    <div style={{ display: "flex", width: "1em", aspectRatio: "1 / 1", alignItems: "center", justifyContent: "center" }}><span>{value}</span></div>
+    <div style={{ display: "flex", width: "1.3em", aspectRatio: "1", alignItems: "center", justifyContent: "center" }}><span>{value}</span></div>
   )
 }
 
@@ -21,8 +21,8 @@ function Mark({ value }: { value?: number | undefined }) {
 // Displays the given value as set by the original Sudoku puzzle or as set by the user
 function Cell({ value }: { value?: number | undefined }) {
   return (
-    <div style={{ position: "relative" }} >
-      <div style={{ position: "absolute", border: "1px solid red" }}>
+    <div style={{ display: "inline-block", position: "relative", width: "3.9em", aspectRatio: "1", border: "1px solid gray" }} >
+      <div style={{ position: "absolute" }}>
         <div style={{ display: "flex" }}>
           <Mark value={1} />
           <Mark value={2} />
@@ -39,11 +39,58 @@ function Cell({ value }: { value?: number | undefined }) {
           <Mark value={9} />
         </div>
       </div>
-      <div style={{ position: "absolute", width: "3em", aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
-        <span style={{ fontSize: "3em" }}>{value}</span>
+      <div style={{ width: "3.9em", aspectRatio: "1", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
+        <span style={{ fontSize: "3em", fontWeight: "normal", color: "#00FA" }}>{value}</span>
       </div>
     </div>
   )
+}
+
+function Grid() {
+  return (
+    <>
+      <div style={{ display: "inline-block", border: "2px solid black"}}>
+        <div>
+          <Cell value={1} />
+          <Cell value={2} />
+          <Cell value={3} />
+        </div>
+        <div>
+          <Cell value={4} />
+          <Cell value={5} />
+          <Cell value={6} />
+        </div>
+        <div>
+          <Cell value={7} />
+          <Cell value={8} />
+          <Cell value={9} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Board: grid of 3x3 Grid components
+function Board() {
+  return (
+    <div>
+      <div>
+        <Grid />
+        <Grid />
+        <Grid />
+      </div>
+      <div>
+        <Grid />
+        <Grid />
+        <Grid />
+      </div>
+      <div>
+        <Grid />
+        <Grid />
+        <Grid />
+      </div>
+    </div>
+  );
 }
 
 function Square({ value, onSquareClick }: { value: string | null, onSquareClick: () => void }) {
@@ -57,7 +104,7 @@ function Square({ value, onSquareClick }: { value: string | null, onSquareClick:
   );
 }
 
-function Board({ squares, onSquareClick }: { squares: Array<string | null>, onSquareClick: (i: number) => void }) {
+function XBoard({ squares, onSquareClick }: { squares: Array<string | null>, onSquareClick: (i: number) => void }) {
 
 
   return (
@@ -152,7 +199,7 @@ export default function Game() {
 
   return (
     <>
-      <Cell value={2}></Cell>
+      <Board />
     </>
   );
 }
