@@ -9,6 +9,43 @@ type HistoryEntry = {
 };
 
 
+// Mark: display the given value or nothing (null) in a square area.
+// Holds the hints the user gives to the parent Cell
+function Mark({ value }: { value?: number | undefined }) {
+  return (
+    <div style={{ display: "flex", width: "1em", aspectRatio: "1 / 1", alignItems: "center", justifyContent: "center" }}><span>{value}</span></div>
+  )
+}
+
+// Cell: constituant of a Grid of 3x3 Cells
+// Displays the given value as set by the original Sudoku puzzle or as set by the user
+function Cell({ value }: { value?: number | undefined }) {
+  return (
+    <div style={{ position: "relative" }} >
+      <div style={{ position: "absolute", border: "1px solid red" }}>
+        <div style={{ display: "flex" }}>
+          <Mark value={1} />
+          <Mark value={2} />
+          <Mark value={3} />
+        </div>
+        <div style={{ display: "flex" }}>
+          <Mark value={4} />
+          <Mark value={5} />
+          <Mark value={6} />
+        </div>
+        <div style={{ display: "flex" }}>
+          <Mark value={7} />
+          <Mark value={8} />
+          <Mark value={9} />
+        </div>
+      </div>
+      <div style={{ position: "absolute", width: "3em", aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
+        <span style={{ fontSize: "3em" }}>{value}</span>
+      </div>
+    </div>
+  )
+}
+
 function Square({ value, onSquareClick }: { value: string | null, onSquareClick: () => void }) {
 
   return (
@@ -115,11 +152,7 @@ export default function Game() {
 
   return (
     <>
-      {player(nextPlayer, winner)}
-      <Board squares={squares} onSquareClick={onSquareClick} />
-      <p>
-        <button onClick={cancelLastMove} disabled={ history.length <= 1}>Cancel Last Move</button>
-      </p>
+      <Cell value={2}></Cell>
     </>
   );
 }
