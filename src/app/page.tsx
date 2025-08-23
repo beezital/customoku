@@ -1,4 +1,12 @@
 'use client';
+
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+
 import { useState } from 'react';
 
 // type for the history of the board state
@@ -21,8 +29,11 @@ function Mark({ value }: { value?: number | undefined }) {
 // Displays the given value as set by the original Sudoku puzzle or as set by the user
 function Cell({ value }: { value?: number | undefined }) {
   return (
-    <div style={{ display: "inline-block", position: "relative", width: "3.9em", aspectRatio: "1", border: "1px solid gray" }} >
-      <div style={{ position: "absolute" }}>
+    <div style={{ position: "relative", display: "inline-block", width: "3.9em", aspectRatio: "1", border: "1px solid gray" }} >
+      <div style={{ position: "absolute", width: "3.9em", aspectRatio: "1", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
+        <span style={{ fontSize: "3em", fontWeight: "normal", color: "#00F8" }}>{value}</span>
+      </div>
+      <div style={{ position: "absolute", color: "#000A" }}>
         <div style={{ display: "flex" }}>
           <Mark value={1} />
           <Mark value={2} />
@@ -39,9 +50,6 @@ function Cell({ value }: { value?: number | undefined }) {
           <Mark value={9} />
         </div>
       </div>
-      <div style={{ width: "3.9em", aspectRatio: "1", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
-        <span style={{ fontSize: "3em", fontWeight: "normal", color: "#00FA" }}>{value}</span>
-      </div>
     </div>
   )
 }
@@ -49,18 +57,18 @@ function Cell({ value }: { value?: number | undefined }) {
 function Grid() {
   return (
     <>
-      <div style={{ display: "inline-block", border: "2px solid black"}}>
-        <div>
+      <div style={{ display: "inline-block", border: "2px solid black" }}>
+        <div style={{ display: "flex" }}>
           <Cell value={1} />
           <Cell value={2} />
           <Cell value={3} />
         </div>
-        <div>
+        <div style={{ display: "flex" }}>
           <Cell value={4} />
           <Cell value={5} />
           <Cell value={6} />
         </div>
-        <div>
+        <div style={{ display: "flex" }}>
           <Cell value={7} />
           <Cell value={8} />
           <Cell value={9} />
@@ -74,17 +82,17 @@ function Grid() {
 function Board() {
   return (
     <div>
-      <div>
+      <div style={{ display: "flex" }}>
         <Grid />
         <Grid />
         <Grid />
       </div>
-      <div>
+      <div style={{ display: "flex" }}>
         <Grid />
         <Grid />
         <Grid />
       </div>
-      <div>
+      <div style={{ display: "flex" }}>
         <Grid />
         <Grid />
         <Grid />
@@ -133,6 +141,9 @@ export default function Game() {
 
   const [winner, setWinner] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([{ squares: Array(9).fill(null), nextPlayer: 'X' }]);
+  
+  // mode state
+  const [mode, setMode] = useState<'init' | 'solve' | 'mark'>('init');
 
   const squares = history[history.length - 1].squares;
   const nextPlayer = history[history.length - 1].nextPlayer;
@@ -198,8 +209,21 @@ export default function Game() {
   }
 
   return (
-    <>
+    <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", alignItems: "center", gap: "1em", padding: "1em" }}>
       <Board />
-    </>
+      <ToggleButtonGroup
+        color="primary"
+        value={mode}
+        exclusive
+        aria-label="Platform"
+        onChange={(event, newMode) => {
+          setMode(newMode);
+        }}
+      >
+        <ToggleButton value="init">Init</ToggleButton>
+        <ToggleButton value="solve">Solve</ToggleButton>
+        <ToggleButton value="mark">Mark</ToggleButton>
+      </ToggleButtonGroup>
+    </div>
   );
 }
