@@ -168,14 +168,21 @@ export default function Game() {
       const cell = newBoardModel.grids[gridId].cells[cellId];
       switch (mode) {
         case Mode.Init:
-        case Mode.Solve:
           cell.value = cell.value === undefined ? digit : undefined;
-          cell.isLocked = false;
           if (mode === Mode.Init) {
             cell.isLocked = cell.value !== undefined;
           }
           break;
+        case Mode.Solve:
+          if (cell.isLocked) {
+            break;
+          }
+          cell.value = cell.value === undefined ? digit : undefined;
+          break;
         case Mode.Mark:
+          if (cell.isLocked) {
+            break;
+          }
           cell.marks[digit - 1] = !cell.marks[digit - 1];
           break;
       }
