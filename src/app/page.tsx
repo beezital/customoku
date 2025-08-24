@@ -40,28 +40,32 @@ type BoardModel = {
 // Holds the hints the user gives to the parent Cell
 function Mark({ value }: { value?: number | undefined }) {
   return (
-    <div style={{ display: "flex", width: "1.3em", aspectRatio: "1", alignItems: "center", justifyContent: "center" }}><span>{value}</span></div>
+    <div style={{ fontSize: "2.5vw", width: "3.3vw", height: "3.3vw", display: "flex", alignItems: "center", justifyContent: "center", color: "#000A" }}>
+      <span>{value ? value : <>&nbsp;</>}</span>
+    </div>
   )
 }
 
 function MarkGrid({ cellModel }: { cellModel: CellModel }) {
-  return <div style={{ position: "absolute", color: "#000A" }}>
-    <div style={{ display: "flex" }}>
-      <Mark value={cellModel.marks[0] ? 1 : undefined} />
-      <Mark value={cellModel.marks[1] ? 2 : undefined} />
-      <Mark value={cellModel.marks[2] ? 3 : undefined} />
+  return (
+    <div style={{ position: "absolute", color: "#000A", width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ display: "flex" }}>
+        <Mark value={cellModel.marks[0] ? 1 : undefined} />
+        <Mark value={cellModel.marks[1] ? 2 : undefined} />
+        <Mark value={cellModel.marks[2] ? 3 : undefined} />
+      </div>
+      <div style={{ display: "flex" }}>
+        <Mark value={cellModel.marks[3] ? 4 : undefined} />
+        <Mark value={cellModel.marks[4] ? 5 : undefined} />
+        <Mark value={cellModel.marks[5] ? 6 : undefined} />
+      </div>
+      <div style={{ display: "flex" }}>
+        <Mark value={cellModel.marks[6] ? 7 : undefined} />
+        <Mark value={cellModel.marks[7] ? 8 : undefined} />
+        <Mark value={cellModel.marks[8] ? 9 : undefined} />
+      </div>
     </div>
-    <div style={{ display: "flex" }}>
-      <Mark value={cellModel.marks[3] ? 4 : undefined} />
-      <Mark value={cellModel.marks[4] ? 5 : undefined} />
-      <Mark value={cellModel.marks[5] ? 6 : undefined} />
-    </div>
-    <div style={{ display: "flex" }}>
-      <Mark value={cellModel.marks[6] ? 7 : undefined} />
-      <Mark value={cellModel.marks[7] ? 8 : undefined} />
-      <Mark value={cellModel.marks[8] ? 9 : undefined} />
-    </div>
-  </div>;
+  );
 }
 
 // Cell: constituant of a Grid of 3x3 Cells
@@ -70,11 +74,11 @@ function Cell({ cellModel, gridId, cellId, onToggle }: { cellModel: CellModel, g
 
   return (
     <div
-      style={{ position: "relative", display: "inline-block", width: "3.9em", aspectRatio: "1", border: "1px solid gray" }}
+      style={{ width: "10vw", height: "10vw", position: "relative", display: "inline-block", border: "1px solid gray" }}
       onClick={() => onToggle(gridId, cellId)}
     >
-      <div style={{ position: "absolute", width: "3.9em", aspectRatio: "1", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent" }}>
-        <span style={{ fontSize: "3em", fontWeight: "normal", color: (cellModel.isLocked ? "#000" : "#00F8") }}>{cellModel.value}</span>
+      <div style={{ position: "absolute", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", width: "100%" }}>
+        <span style={{ fontSize: "8vw", fontWeight: "normal", color: (cellModel.isLocked ? "#000" : "#00F8") }}>{cellModel.value ? cellModel.value : <>&nbsp;</>}</span>
       </div>
       {
         !cellModel.isLocked && (
@@ -112,7 +116,7 @@ function Grid({ gridModel, gridId, onToggle }: { gridModel: GridModel, gridId: n
 // Board: grid of 3x3 Grid components
 function Board({ boardModel, onToggle }: { boardModel: BoardModel, onToggle: (gridId: number, cellId: number) => void }) {
   return (
-    <div>
+    <div style={{ overflowX: "hidden" }}>
       <div style={{ display: "flex" }}>
         <Grid gridModel={boardModel.grids[0]} gridId={0} onToggle={onToggle} />
         <Grid gridModel={boardModel.grids[1]} gridId={1} onToggle={onToggle} />
@@ -151,7 +155,7 @@ export default function Game() {
     } else {
       initialBoardModel = createEmptyBoard();
     }
-  // initialise the board model
+    // initialise the board model
     setBoardModel(initialBoardModel);
   }, []);
 
@@ -182,14 +186,14 @@ export default function Game() {
   }
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", alignItems: "center", gap: "1em", padding: "1em" }}>
+    <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "column", alignItems: "center", gap: "1rem", marginTop: "1rem" }}>
       {boardModel ? (
         <Board boardModel={boardModel} onToggle={onToggleCell()} />
       ) : (
         // Optionally show a loading spinner or nothing
         <div>Loading...</div>
       )}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1em" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
         <ToggleButtonGroup
           color="primary"
           value={mode}
