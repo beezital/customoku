@@ -165,6 +165,7 @@ export default function Game() {
         case Mode.Init:
         case Mode.Solve:
           cell.value = cell.value === undefined ? digit : undefined;
+          cell.isLocked = false;
           if (mode === Mode.Init) {
             cell.isLocked = cell.value !== undefined;
           }
