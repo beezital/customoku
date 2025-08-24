@@ -7,7 +7,7 @@ import '@fontsource/roboto/700.css';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Define the Mode type as  an enum
 enum Mode {
@@ -140,23 +140,24 @@ export default function Game() {
   // digit state
   const [digit, setDigit] = useState<number | undefined>(undefined);
 
-  // initialise the board model
-  const [boardModel, setBoardModel] = useState<BoardModel>({
-    grids: Array.from({ length: 9 }, (_, gridId) => ({
-      gridId,
-      cells: Array.from({ length: 9 }, (_, cellId) => ({
-        cellId,
-        value: undefined,
-        isLocked: false,
-        marks: Array(9).fill(false)
-      }))
-    }))
-  });
+  const [boardModel, setBoardModel] = useState<BoardModel | null>(null);
 
+  useEffect(() => {
+    // load board model from local storage
+    let initialBoardModel: BoardModel;
+    const savedBoardModelJSON = localStorage.getItem("boardModel");
+    if (savedBoardModelJSON) {
+      initialBoardModel = JSON.parse(savedBoardModelJSON);
+    } else {
+      initialBoardModel = createEmptyBoard();
+    }
+  // initialise the board model
+    setBoardModel(initialBoardModel);
+  }, []);
 
   function onToggleCell(): (gridId: number, cellId: number) => void {
     return (gridId, cellId) => {
-      if (digit === undefined) {
+      if (digit === undefined || boardModel === null) {
         return;
       }
       const newBoardModel = { ...boardModel };
@@ -171,16 +172,23 @@ export default function Game() {
           }
           break;
         case Mode.Mark:
-          cell.marks[digit-1] = !cell.marks[digit-1];
+          cell.marks[digit - 1] = !cell.marks[digit - 1];
           break;
       }
       setBoardModel(newBoardModel);
+      // save the current board to local storage
+      localStorage.setItem("boardModel", JSON.stringify(newBoardModel));
     };
   }
 
   return (
     <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", alignItems: "center", gap: "1em", padding: "1em" }}>
-      <Board boardModel={boardModel} onToggle={onToggleCell()} />
+      {boardModel ? (
+        <Board boardModel={boardModel} onToggle={onToggleCell()} />
+      ) : (
+        // Optionally show a loading spinner or nothing
+        <div>Loading...</div>
+      )}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1em" }}>
         <ToggleButtonGroup
           color="primary"
@@ -218,3 +226,18 @@ export default function Game() {
     </div>
   );
 }
+
+function createEmptyBoard() {
+  return {
+    grids: Array.from({ length: 9 }, (_, gridId) => ({
+      gridId,
+      cells: Array.from({ length: 9 }, (_, cellId) => ({
+        cellId,
+        value: undefined,
+        isLocked: false,
+        marks: Array(9).fill(false)
+      }))
+    }))
+  };
+}
+
