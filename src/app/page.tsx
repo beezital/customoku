@@ -7,7 +7,7 @@ import '@fontsource/roboto/700.css';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 
 // Define the Mode type as  an enum
 enum Mode {
@@ -35,22 +35,43 @@ type BoardModel = {
   grids: Array<GridModel>;
 };
 
-const MARK_MAX_SIZE = 24;
-const CELL_MAX_SIZE = MARK_MAX_SIZE * 3.3;
 
 // Mark: display the given value or nothing (null) in a square area.
 // Holds the hints the user gives to the parent Cell
 function Mark({ value }: { value?: number | undefined }) {
+
+  // ref to container in order to compute font-size
+  const containerRef = useRef<HTMLDivElement>(null);
+  // state for font-size
+  const [fontSize, setFontSize] = useState(0);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+
+    function updateFontSize() {
+      const newFontSize = container.clientWidth * 0.8;
+      setFontSize(newFontSize);
+    }
+
+    updateFontSize();
+
+    const resizeObserver = new ResizeObserver(updateFontSize);
+    resizeObserver.observe(container);
+
+  }, []);
+
   return (
-    <div style={{ fontSize: `min(2.5vw, ${MARK_MAX_SIZE * 0.85}px)`, width: "3.3vw", height: "3.3vw", maxWidth: `${MARK_MAX_SIZE}px`, maxHeight: `${MARK_MAX_SIZE}px`, display: "flex", alignItems: "center", justifyContent: "center", color: "#000A" }}>
-      <span>{value ? value : <>&nbsp;</>}</span>
+    <div ref={containerRef} style={{ width: "100%", aspectRatio: "1 / 1", display: "flex", alignItems: "center", justifyContent: "center", color: "#000A" }}>
+      <span style={{ fontSize: `${fontSize}px` }}>{value ? value : <>&nbsp;</>}</span>
     </div>
   )
 }
 
 function MarkGrid({ cellModel }: { cellModel: CellModel }) {
   return (
-    <div style={{ position: "absolute", color: "#000A", width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ width: "100%", position: "absolute", color: "#000A", height: "100%", display: "flex", flexDirection: "column", alignItems: "normal", justifyContent: "center" }}>
       <div style={{ display: "flex" }}>
         <Mark value={cellModel.marks[0] ? 1 : undefined} />
         <Mark value={cellModel.marks[1] ? 2 : undefined} />
@@ -74,13 +95,36 @@ function MarkGrid({ cellModel }: { cellModel: CellModel }) {
 // Displays the given value as set by the original Sudoku puzzle or as set by the user
 function Cell({ cellModel, gridId, cellId, onToggle }: { cellModel: CellModel, gridId: number, cellId: number, onToggle: (gridId: number, cellId: number) => void }) {
 
+  // ref to container in order to compute font-size
+  const containerRef = useRef<HTMLDivElement>(null);
+  // state for font-size
+  const [fontSize, setFontSize] = useState(0);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+
+    function updateFontSize() {
+      const newFontSize = container.clientWidth * 0.9;
+      setFontSize(newFontSize);
+    }
+
+    updateFontSize();
+
+    const resizeObserver = new ResizeObserver(updateFontSize);
+    resizeObserver.observe(container);
+
+  }, []);
+
   return (
     <div
-      style={{ width: "10vw", height: "10vw", maxWidth: `${CELL_MAX_SIZE}px`, maxHeight: `${CELL_MAX_SIZE}px`, position: "relative", display: "inline-block", border: "1px solid gray" }}
+      ref={containerRef}
+      style={{ width: "33.33%", aspectRatio: "1 / 1", flexGrow: 1, position: "relative", display: "inline-block", border: "1px solid gray", margin: "-1px" }}
       onClick={() => onToggle(gridId, cellId)}
     >
       <div style={{ position: "absolute", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", width: "100%" }}>
-        <span style={{ fontSize: `min(8vw, ${CELL_MAX_SIZE * 0.85}px)`, fontWeight: "normal", color: (cellModel.isLocked ? "#000" : "#00F8") }}>{cellModel.value ? cellModel.value : <>&nbsp;</>}</span>
+        <span style={{ fontSize: `${fontSize}px`, fontWeight: "normal", color: (cellModel.isLocked ? "#000" : "#00F8") }}>{cellModel.value ? cellModel.value : <>&nbsp;</>}</span>
       </div>
       {
         !cellModel.isLocked && (
@@ -94,7 +138,7 @@ function Cell({ cellModel, gridId, cellId, onToggle }: { cellModel: CellModel, g
 function Grid({ gridModel, gridId, onToggle }: { gridModel: GridModel, gridId: number, onToggle: (gridId: number, cellId: number) => void }) {
   return (
     <>
-      <div style={{ display: "inline-block", border: "2px solid black" }}>
+      <div style={{ width: "33.33%", aspectRatio: "1 / 1", display: "inline-block", border: "2px solid black" }}>
         <div style={{ display: "flex" }}>
           <Cell cellModel={gridModel.cells[0]} gridId={gridId} cellId={0} onToggle={onToggle} />
           <Cell cellModel={gridModel.cells[1]} gridId={gridId} cellId={1} onToggle={onToggle} />
@@ -118,7 +162,7 @@ function Grid({ gridModel, gridId, onToggle }: { gridModel: GridModel, gridId: n
 // Board: grid of 3x3 Grid components
 function Board({ boardModel, onToggle }: { boardModel: BoardModel, onToggle: (gridId: number, cellId: number) => void }) {
   return (
-    <div style={{ overflowX: "hidden" }}>
+    <div style={{ width: "100%", minWidth: "300px", maxWidth: "min(90vw, 90vh)", border: "2px solid black" }}>
       <div style={{ display: "flex" }}>
         <Grid gridModel={boardModel.grids[0]} gridId={0} onToggle={onToggle} />
         <Grid gridModel={boardModel.grids[1]} gridId={1} onToggle={onToggle} />
@@ -195,48 +239,50 @@ export default function Game() {
   }
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", alignItems: "center", justifyContent: "space-around", gap: "1rem", marginTop: "1rem" }}>
-      {boardModel ? (
-        <Board boardModel={boardModel} onToggle={onToggleCell()} />
-      ) : (
-        // Optionally show a loading spinner or nothing
-        <div>Loading...</div>
-      )}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", flexBasis: "0", flexGrow: 1 }}>
-        <ToggleButtonGroup
-          color="primary"
-          value={mode}
-          exclusive
-          aria-label="Mode"
-          onChange={(event, newMode) => {
-            setMode(newMode);
-          }}
-        >
-          <ToggleButton value={Mode.Init}>Init</ToggleButton>
-          <ToggleButton value={Mode.Solve}>Solve</ToggleButton>
-          <ToggleButton value={Mode.Mark}>Mark</ToggleButton>
-        </ToggleButtonGroup>
-        <ToggleButtonGroup
-          color="primary"
-          value={digit}
-          exclusive
-          aria-label="Digit"
-          onChange={(event, newDigit) => {
-            setDigit(newDigit);
-          }}
-        >
-          <ToggleButton value={1}>1</ToggleButton>
-          <ToggleButton value={2}>2</ToggleButton>
-          <ToggleButton value={3}>3</ToggleButton>
-          <ToggleButton value={4}>4</ToggleButton>
-          <ToggleButton value={5}>5</ToggleButton>
-          <ToggleButton value={6}>6</ToggleButton>
-          <ToggleButton value={7}>7</ToggleButton>
-          <ToggleButton value={8}>8</ToggleButton>
-          <ToggleButton value={9}>9</ToggleButton>
-        </ToggleButtonGroup>
+    <>
+      <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", alignItems: "center", justifyContent: "space-around", gap: "1rem", marginTop: "1rem" }}>
+        {boardModel ? (
+          <Board boardModel={boardModel} onToggle={onToggleCell()} />
+        ) : (
+          // Optionally show a loading spinner or nothing
+          <div>Loading...</div>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", flexBasis: "0", flexGrow: 1 }}>
+          <ToggleButtonGroup
+            color="primary"
+            value={mode}
+            exclusive
+            aria-label="Mode"
+            onChange={(event, newMode) => {
+              setMode(newMode);
+            }}
+          >
+            <ToggleButton value={Mode.Init}>Init</ToggleButton>
+            <ToggleButton value={Mode.Solve}>Solve</ToggleButton>
+            <ToggleButton value={Mode.Mark}>Mark</ToggleButton>
+          </ToggleButtonGroup>
+          <ToggleButtonGroup
+            color="primary"
+            value={digit}
+            exclusive
+            aria-label="Digit"
+            onChange={(event, newDigit) => {
+              setDigit(newDigit);
+            }}
+          >
+            <ToggleButton value={1}>1</ToggleButton>
+            <ToggleButton value={2}>2</ToggleButton>
+            <ToggleButton value={3}>3</ToggleButton>
+            <ToggleButton value={4}>4</ToggleButton>
+            <ToggleButton value={5}>5</ToggleButton>
+            <ToggleButton value={6}>6</ToggleButton>
+            <ToggleButton value={7}>7</ToggleButton>
+            <ToggleButton value={8}>8</ToggleButton>
+            <ToggleButton value={9}>9</ToggleButton>
+          </ToggleButtonGroup>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
