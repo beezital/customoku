@@ -282,6 +282,12 @@ export default function Game() {
           </ToggleButtonGroup>
         </div>
       </div>
+
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: "3px", marginTop: "2rem", color: "#0008" }}>
+        <small>Développé par</small>
+        <img style={{ position: "relative", top: "3px" }} src="https://www.beezital.fr/wp-content/uploads/2020/04/BEEZITAL-bee-small-fade.svg" width="20" alt='Beezital logo' />
+        <small><a href="https://www.beezital.fr" target="_blank">beezital.fr</a></small>
+      </div>
     </>
   );
 }
