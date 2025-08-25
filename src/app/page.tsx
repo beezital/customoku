@@ -35,12 +35,14 @@ type BoardModel = {
   grids: Array<GridModel>;
 };
 
+const MARK_MAX_SIZE = 24;
+const CELL_MAX_SIZE = MARK_MAX_SIZE * 3.3;
 
 // Mark: display the given value or nothing (null) in a square area.
 // Holds the hints the user gives to the parent Cell
 function Mark({ value }: { value?: number | undefined }) {
   return (
-    <div style={{ fontSize: "2.5vw", width: "3.3vw", height: "3.3vw", display: "flex", alignItems: "center", justifyContent: "center", color: "#000A" }}>
+    <div style={{ fontSize: `min(2.5vw, ${MARK_MAX_SIZE * 0.85}px)`, width: "3.3vw", height: "3.3vw", maxWidth: `${MARK_MAX_SIZE}px`, maxHeight: `${MARK_MAX_SIZE}px`, display: "flex", alignItems: "center", justifyContent: "center", color: "#000A" }}>
       <span>{value ? value : <>&nbsp;</>}</span>
     </div>
   )
@@ -74,11 +76,11 @@ function Cell({ cellModel, gridId, cellId, onToggle }: { cellModel: CellModel, g
 
   return (
     <div
-      style={{ width: "10vw", height: "10vw", position: "relative", display: "inline-block", border: "1px solid gray" }}
+      style={{ width: "10vw", height: "10vw", maxWidth: `${CELL_MAX_SIZE}px`, maxHeight: `${CELL_MAX_SIZE}px`, position: "relative", display: "inline-block", border: "1px solid gray" }}
       onClick={() => onToggle(gridId, cellId)}
     >
       <div style={{ position: "absolute", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", width: "100%" }}>
-        <span style={{ fontSize: "8vw", fontWeight: "normal", color: (cellModel.isLocked ? "#000" : "#00F8") }}>{cellModel.value ? cellModel.value : <>&nbsp;</>}</span>
+        <span style={{ fontSize: `min(8vw, ${CELL_MAX_SIZE * 0.85}px)`, fontWeight: "normal", color: (cellModel.isLocked ? "#000" : "#00F8") }}>{cellModel.value ? cellModel.value : <>&nbsp;</>}</span>
       </div>
       {
         !cellModel.isLocked && (
@@ -193,14 +195,14 @@ export default function Game() {
   }
 
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "column", alignItems: "center", gap: "1rem", marginTop: "1rem" }}>
+    <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", alignItems: "center", justifyContent: "space-around", gap: "1rem", marginTop: "1rem" }}>
       {boardModel ? (
         <Board boardModel={boardModel} onToggle={onToggleCell()} />
       ) : (
         // Optionally show a loading spinner or nothing
         <div>Loading...</div>
       )}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", flexBasis: "0", flexGrow: 1 }}>
         <ToggleButtonGroup
           color="primary"
           value={mode}
