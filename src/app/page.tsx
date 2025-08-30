@@ -203,6 +203,17 @@ export default function Game() {
     }
     // initialise the board model
     setBoardModel(initialBoardModel);
+
+    // add listener to keyboard events
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key >= "1" && event.key <= "9") {
+        setDigit(Number(event.key));
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   function onToggleCell(): (gridId: number, cellId: number) => void {
