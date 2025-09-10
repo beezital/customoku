@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useBoardModelHelper } from "@/hooks/useBoardModelHelper";
 import { BoardModel } from "@/models/models";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, List, ListItem, ListItemButton } from "@mui/material";
-import { RemoveCircle } from '@mui/icons-material';
+import { RemoveCircle, MoreHoriz } from '@mui/icons-material';
 
 function LoadBoardDialog({ currentBoardId, isDialogOpen, setIsDialogOpen }: { currentBoardId: string, isDialogOpen: boolean, setIsDialogOpen: (open: boolean) => void }) {
 
@@ -12,6 +12,7 @@ function LoadBoardDialog({ currentBoardId, isDialogOpen, setIsDialogOpen }: { cu
   const boardList = getSortedBoards();
 
   function handleClose() {
+    setBoardIdMarkedForDeletion(null);
     setIsDialogOpen(false);
   }
 
@@ -100,7 +101,9 @@ export default function LoadBoard({ currentBoardId }: { currentBoardId: string }
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={onOpenDialog}>Load Another Board</Button>
+      <IconButton onClick={onOpenDialog}>
+        <MoreHoriz />
+      </IconButton>
       <LoadBoardDialog currentBoardId={currentBoardId} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
     </>
   )

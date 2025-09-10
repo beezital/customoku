@@ -231,7 +231,7 @@ export default function Game() {
           <>
             <Board boardModel={boardModel} onToggle={onToggleCell()} />
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", flexBasis: "0", flexGrow: 1 }}>
-              <div style={{ display: "flex", gap: "1rem" }}>
+              <div style={{ display: "flex", gap: "1rem", alignItems: "baseline", flexWrap: "wrap" }}>
                 <NameField boardModel={boardModel} setBoardModel={setBoardModel} />
                 <LoadBoard currentBoardId={boardModel.boardId} />
               </div>
