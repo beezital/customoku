@@ -1,30 +1,36 @@
 import { BoardModel } from "@/models/models";
 import { useCallback } from "react";
 
+
+function createEmptyBoard() {
+  return {
+    grids: Array.from({ length: 9 }, (_, gridId) => ({
+      gridId,
+      cells: Array.from({ length: 9 }, (_, cellId) => ({
+        cellId,
+        value: undefined,
+        isLocked: false,
+        marks: Array(9).fill(false)
+      }))
+    })),
+    name: "Game " + crypto.getRandomValues(new Uint32Array(1))[0],
+    boardId: crypto.randomUUID(),
+  }
+}
+
+
 export function useBoardModelHelper() {
 
   const loadBoardModel = useCallback((): BoardModel => {
-    function createEmptyBoard() {
-      return {
-        grids: Array.from({ length: 9 }, (_, gridId) => ({
-          gridId,
-          cells: Array.from({ length: 9 }, (_, cellId) => ({
-            cellId,
-            value: undefined,
-            isLocked: false,
-            marks: Array(9).fill(false)
-          }))
-        })),
-        name: "New Board",
-        boardId: crypto.randomUUID(),
-      }
-    }
-
     // load board model from local storage
     let initialBoardModel: BoardModel;
     const savedBoardModelJSON = localStorage.getItem("boardModel");
     if (savedBoardModelJSON) {
       initialBoardModel = JSON.parse(savedBoardModelJSON);
+      // ensure boardId exists
+      if (!initialBoardModel.boardId) {
+        initialBoardModel.boardId = crypto.randomUUID();
+      }
     } else {
       initialBoardModel = createEmptyBoard();
     }
@@ -32,12 +38,57 @@ export function useBoardModelHelper() {
   }, []);
 
 
-  const saveBoardModel = useCallback((boardModel: BoardModel) => {
+  const saveBoardModel = useCallback(async (boardModel: BoardModel) => {
     localStorage.setItem("boardModel", JSON.stringify(boardModel));
   }, []);
 
+
+  const swapBoardModel = useCallback((targetBoardModelId: string) => {
+    const currentBoardModel: BoardModel = JSON.parse(localStorage.getItem("boardModel") || "{}");
+
+    const allBoardsJSON = localStorage.getItem("allBoards") || "{}";
+    const allBoards: { [key: string]: BoardModel } = JSON.parse(allBoardsJSON);
+
+    const targetBoardModel = allBoards[targetBoardModelId];
+    if (targetBoardModel) {
+      // save the target board model to local storage as the current board model
+      localStorage.setItem("boardModel", JSON.stringify(targetBoardModel));
+    } else {
+      // create a new empty board if the target board model is not found
+      const emptyBoardModel = createEmptyBoard();
+      localStorage.setItem("boardModel", JSON.stringify(emptyBoardModel));
+    }
+    // also save the current board model to allBoards
+    allBoards[currentBoardModel.boardId] = currentBoardModel;
+    localStorage.setItem("allBoards", JSON.stringify(allBoards));
+    // reload the page
+    window.location.reload();
+  }, []);
+
+
+  const getAllBoards = useCallback((): { [key: string]: BoardModel } => {
+    const allBoardsJSON = localStorage.getItem("allBoards");
+    if (allBoardsJSON) {
+      return JSON.parse(allBoardsJSON);
+    } else {
+      return {};
+    }
+  }, []);
+
+
+  const getSortedBoards = useCallback((): BoardModel[] => {
+    const allBoards = getAllBoards();
+    const boardsArray = Object.values(allBoards);
+    boardsArray.sort((a, b) => a.name.localeCompare(b.name));
+    return boardsArray;
+  }, [getAllBoards]);
+
+
   return {
     loadBoardModel,
-    saveBoardModel
+    saveBoardModel,
+    swapBoardModel,
+    getAllBoards,
+    getSortedBoards
   };
 }

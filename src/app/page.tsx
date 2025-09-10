@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BoardModel, CellModel, GridModel, Mode } from '@/models/models';
 import { useBoardModelHelper } from '@/hooks/useBoardModelHelper';
 import NameField from '@/components/NameField/NameField';
+import LoadBoard from '@/components/LoadBoard/LoadBoard';
 
 // Mark: display the given value or nothing (null) in a square area.
 // Holds the hints the user gives to the parent Cell
@@ -230,7 +231,10 @@ export default function Game() {
           <>
             <Board boardModel={boardModel} onToggle={onToggleCell()} />
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", flexBasis: "0", flexGrow: 1 }}>
-              <NameField boardModel={boardModel} setBoardModel={setBoardModel} />
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <NameField boardModel={boardModel} setBoardModel={setBoardModel} />
+                <LoadBoard />
+              </div>
               <ToggleButtonGroup
                 color="primary"
                 value={mode}
