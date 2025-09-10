@@ -233,7 +233,7 @@ export default function Game() {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", flexBasis: "0", flexGrow: 1 }}>
               <div style={{ display: "flex", gap: "1rem" }}>
                 <NameField boardModel={boardModel} setBoardModel={setBoardModel} />
-                <LoadBoard />
+                <LoadBoard currentBoardId={boardModel.boardId} />
               </div>
               <ToggleButtonGroup
                 color="primary"
