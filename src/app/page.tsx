@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -7,34 +8,11 @@ import '@fontsource/roboto/700.css';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-// Define the Mode type as  an enum
-enum Mode {
-  Init = 'init',
-  Solve = 'solve',
-  Mark = 'mark',
-}
-
-// Define Cell model
-type CellModel = {
-  cellId: number;
-  value?: number | undefined;
-  isLocked: boolean;
-  marks: Array<boolean>; // Array of 9 booleans indicating possible marks (1-9)
-};
-
-// Define Grid model
-type GridModel = {
-  gridId: number;
-  cells: Array<CellModel>;
-};
-
-// Define Board model
-type BoardModel = {
-  grids: Array<GridModel>;
-};
-
+import { BoardModel, CellModel, GridModel, Mode } from '@/models/models';
+import { useBoardModelHelper } from '@/hooks/useBoardModelHelper';
+import NameField from '@/components/NameField/NameField';
 
 // Mark: display the given value or nothing (null) in a square area.
 // Holds the hints the user gives to the parent Cell
@@ -191,17 +169,12 @@ export default function Game() {
   const [digit, setDigit] = useState<number | undefined>(undefined);
 
   const [boardModel, setBoardModel] = useState<BoardModel | null>(null);
+  const { loadBoardModel, saveBoardModel } = useBoardModelHelper();
+
 
   useEffect(() => {
-    // load board model from local storage
-    let initialBoardModel: BoardModel;
-    const savedBoardModelJSON = localStorage.getItem("boardModel");
-    if (savedBoardModelJSON) {
-      initialBoardModel = JSON.parse(savedBoardModelJSON);
-    } else {
-      initialBoardModel = createEmptyBoard();
-    }
     // initialise the board model
+    const initialBoardModel = loadBoardModel();
     setBoardModel(initialBoardModel);
 
     // add listener to keyboard events
@@ -214,7 +187,8 @@ export default function Game() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [loadBoardModel]);
+
 
   function onToggleCell(): (gridId: number, cellId: number) => void {
     return (gridId, cellId) => {
@@ -245,7 +219,7 @@ export default function Game() {
       }
       setBoardModel(newBoardModel);
       // save the current board to local storage
-      localStorage.setItem("boardModel", JSON.stringify(newBoardModel));
+      saveBoardModel(newBoardModel);
     };
   }
 
@@ -253,67 +227,63 @@ export default function Game() {
     <>
       <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", alignItems: "center", justifyContent: "space-around", gap: "1rem", marginTop: "1rem" }}>
         {boardModel ? (
-          <Board boardModel={boardModel} onToggle={onToggleCell()} />
+          <>
+            <Board boardModel={boardModel} onToggle={onToggleCell()} />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", flexBasis: "0", flexGrow: 1 }}>
+              <NameField boardModel={boardModel} setBoardModel={setBoardModel} />
+              <ToggleButtonGroup
+                color="primary"
+                value={mode}
+                exclusive
+                aria-label="Mode"
+                onChange={(event, newMode) => {
+                  setMode(newMode);
+                }}
+              >
+                <ToggleButton value={Mode.Init}>Init</ToggleButton>
+                <ToggleButton value={Mode.Solve}>Solve</ToggleButton>
+                <ToggleButton value={Mode.Mark}>Mark</ToggleButton>
+              </ToggleButtonGroup>
+              <ToggleButtonGroup
+                color="primary"
+                value={digit}
+                exclusive
+                aria-label="Digit"
+                onChange={(event, newDigit) => {
+                  setDigit(newDigit);
+                }}
+              >
+                <ToggleButton value={1}>1</ToggleButton>
+                <ToggleButton value={2}>2</ToggleButton>
+                <ToggleButton value={3}>3</ToggleButton>
+                <ToggleButton value={4}>4</ToggleButton>
+                <ToggleButton value={5}>5</ToggleButton>
+                <ToggleButton value={6}>6</ToggleButton>
+                <ToggleButton value={7}>7</ToggleButton>
+                <ToggleButton value={8}>8</ToggleButton>
+                <ToggleButton value={9}>9</ToggleButton>
+              </ToggleButtonGroup>
+            </div>
+          </>
         ) : (
           // Optionally show a loading spinner or nothing
           <div>Loading...</div>
         )}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", flexBasis: "0", flexGrow: 1 }}>
-          <ToggleButtonGroup
-            color="primary"
-            value={mode}
-            exclusive
-            aria-label="Mode"
-            onChange={(event, newMode) => {
-              setMode(newMode);
-            }}
-          >
-            <ToggleButton value={Mode.Init}>Init</ToggleButton>
-            <ToggleButton value={Mode.Solve}>Solve</ToggleButton>
-            <ToggleButton value={Mode.Mark}>Mark</ToggleButton>
-          </ToggleButtonGroup>
-          <ToggleButtonGroup
-            color="primary"
-            value={digit}
-            exclusive
-            aria-label="Digit"
-            onChange={(event, newDigit) => {
-              setDigit(newDigit);
-            }}
-          >
-            <ToggleButton value={1}>1</ToggleButton>
-            <ToggleButton value={2}>2</ToggleButton>
-            <ToggleButton value={3}>3</ToggleButton>
-            <ToggleButton value={4}>4</ToggleButton>
-            <ToggleButton value={5}>5</ToggleButton>
-            <ToggleButton value={6}>6</ToggleButton>
-            <ToggleButton value={7}>7</ToggleButton>
-            <ToggleButton value={8}>8</ToggleButton>
-            <ToggleButton value={9}>9</ToggleButton>
-          </ToggleButtonGroup>
-        </div>
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: "3px", marginTop: "2rem", color: "#0008" }}>
         <small>Développé par</small>
-        <img style={{ position: "relative", top: "3px" }} src="https://www.beezital.fr/wp-content/uploads/2020/04/BEEZITAL-bee-small-fade.svg" width="20" alt='Beezital logo' />
+        <Image
+          style={{ position: "relative", top: "3px" }}
+          src="https://www.beezital.fr/wp-content/uploads/2020/04/BEEZITAL-bee-small-fade.svg"
+          width={20}
+          height={20}
+          alt="Beezital logo"
+        />
         <small><a href="https://www.beezital.fr" target="_blank">beezital.fr</a></small>
       </div>
     </>
   );
 }
 
-function createEmptyBoard() {
-  return {
-    grids: Array.from({ length: 9 }, (_, gridId) => ({
-      gridId,
-      cells: Array.from({ length: 9 }, (_, cellId) => ({
-        cellId,
-        value: undefined,
-        isLocked: false,
-        marks: Array(9).fill(false)
-      }))
-    }))
-  };
-}
 
